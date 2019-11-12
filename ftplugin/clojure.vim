@@ -2,16 +2,23 @@
 " https://github.com/liquidz/vim-iced
 " commit: 2576a2ee06a768d03553d18182e7f5eeb73a2f6d
 
+let g:iced#nrepl#connect#jack_in_command='iced repl -A:dev:test'
+
 "" Commands {{{
 command! -nargs=? Connect               call iced#nrepl#connect(<q-args>)
 command!          Disconnect            call iced#nrepl#disconnect()
 command!          Reconnect             call iced#nrepl#reconnect()
 command!          Interrupt             call iced#nrepl#interrupt()
+command!          InterruptAll          call iced#nrepl#interrupt_all()
+command!          InstantConnect        call iced#nrepl#connect#instant()
+command!          JackIn                call iced#nrepl#connect#jack_in()
+
 command! -nargs=? CljsRepl              call iced#nrepl#cljs#start_repl(<q-args>)
 command! -nargs=+ -complete=custom,iced#nrepl#cljs#env_complete
-\ StartCljsRepl    call iced#nrepl#cljs#start_repl_via_env(<f-args>)
+      \ StartCljsRepl    call iced#nrepl#cljs#start_repl_via_env(<f-args>)
 command!          QuitCljsRepl          call iced#nrepl#cljs#stop_repl_via_env()
 command!          CycleSession          call iced#nrepl#cljs#cycle_session()
+
 command! -nargs=1 Eval                  call iced#nrepl#eval#code(<q-args>)
 command! -nargs=1 EvalRepl              call iced#nrepl#eval#repl(<q-args>)
 command!          EvalNs                call iced#nrepl#eval#ns()
@@ -24,48 +31,57 @@ command!          EvalOuterTopList      call iced#nrepl#eval#outer_top_list()
 command!          PrintLast             call iced#nrepl#eval#print_last()
 command!          MacroExpandOuterList  call iced#nrepl#macro#expand_outer_list()
 command!          MacroExpand1OuterList call iced#nrepl#macro#expand_1_outer_list()
+
 command!          TestNs                call iced#nrepl#test#ns()
 command!          TestAll               call iced#nrepl#test#all()
 command!          TestRedo              call iced#nrepl#test#redo()
 command!          TestUnderCursor       call iced#nrepl#test#under_cursor()
 command!          TestRerunLast         call iced#nrepl#test#rerun_last()
 command! -nargs=? TestSpecCheck         call iced#nrepl#test#spec_check(<q-args>)
-command!          TestBufferOpen        call iced#buffer#error#open()
-command!          StdoutBufferOpen      call iced#buffer#stdout#open()
+command!          OpenTestBuffer        call iced#buffer#error#open()
+
+command!          StdoutBuffer          call iced#buffer#stdout#open()
 command!          StdoutBufferClear     call iced#buffer#stdout#clear()
 command!          StdoutBufferClose     call iced#buffer#stdout#close()
+
 command! -nargs=? DefJump               call iced#nrepl#navigate#jump_to_def(<q-args>)
 command!          DefBack               call iced#nrepl#navigate#jump_back()
 command! -nargs=1 -complete=custom,iced#nrepl#navigate#ns_complete
-\ OpenNs                          call iced#nrepl#navigate#open_ns('e', <q-args>)
-command! -nargs=? DocumentOpen          call iced#nrepl#document#open(<q-args>)
-command! -nargs=? PopupDocumentOpen     call iced#nrepl#document#popup_open(<q-args>)
-command!          FormDocument          call iced#nrepl#document#current_form()
-command! -nargs=? UseCaseOpen           call iced#nrepl#document#usecase(<q-args>)
+      \ OpenNs                          call iced#nrepl#navigate#open_ns('e', <q-args>)
+
+command! -nargs=? Document              call iced#nrepl#document#open(<q-args>)
+command! -nargs=? Popup                 call iced#nrepl#document#popup_open(<q-args>)
+command!          Form                  call iced#nrepl#document#current_form()
+command! -nargs=? Usecase               call iced#nrepl#document#usecase(<q-args>)
 command!          NextUseCase           call iced#nrepl#document#next_usecase()
 command!          PrevUseCase           call iced#nrepl#document#prev_usecase()
 command!          DocumentClose         call iced#nrepl#document#close()
-command! -nargs=? SourceShow            call iced#nrepl#source#show(<q-args>)
-command! -nargs=? PopupSourceShow       call iced#nrepl#source#popup_show(<q-args>)
+command! -nargs=? Source                call iced#nrepl#source#show(<q-args>)
+command! -nargs=? PopupSource           call iced#nrepl#source#popup_show(<q-args>)
 command!          CommandPalette        call iced#palette#show()
+command!          Spec                  call iced#nrepl#spec#list()
 command! -nargs=? SpecForm              call iced#nrepl#spec#form(<q-args>)
 command! -nargs=? SpecExample           call iced#nrepl#spec#example(<q-args>)
-command! -nargs=? ClojureDocsOpen       call iced#clojuredocs#open(<q-args>)
+command! -nargs=? ClojureDocs           call iced#clojuredocs#open(<q-args>)
 command!          ClojureDocsRefresh    call iced#clojuredocs#refresh()
+
 command!          Slurp                 call iced#paredit#deep_slurp()
 command!          Barf                  call iced#paredit#barf()
-command!          Format                call iced#format#form()
+command!          FormatForm            call iced#format#form()
+command!          Format                call iced#format#all()
 command!          ToggleSrcAndTest      call iced#nrepl#navigate#toggle_src_and_test()
 command! -nargs=? Grep                  call iced#grep#exe(<q-args>)
+
 command!          BrowseRelatedNamespace call iced#nrepl#navigate#related_ns()
-command!          BrowseSpec             call iced#nrepl#spec#list()
 command!          BrowseTestUnderCursor  call iced#nrepl#navigate#test()
 command!          BrowseReferences       call iced#nrepl#navigate#browse_references()
 command!          BrowseDependencies     call iced#nrepl#navigate#browse_dependencies()
 command! -nargs=? BrowseVarReferences    call iced#nrepl#navigate#browse_var_references(<q-args>)
 command! -nargs=? BrowseVarDependencies  call iced#nrepl#navigate#browse_var_dependencies(<q-args>)
 command!          ClearCtrlpCache        call ctrlp#iced#cache#clear()
+
 command!          CleanNs               call iced#nrepl#refactor#clean_ns()
+command!          CleanAll              call iced#nrepl#refactor#clean_all()
 command! -nargs=? AddMissing            call iced#nrepl#refactor#add_missing_ns(<q-args>)
 command! -nargs=? AddNs                 call iced#nrepl#refactor#add_ns(<q-args>)
 command!          ThreadFirst           call iced#nrepl#refactor#thread_first()
@@ -73,21 +89,25 @@ command!          ThreadLast            call iced#nrepl#refactor#thread_last()
 command!          ExtractFunction       call iced#nrepl#refactor#extract_function()
 command!          AddArity              call iced#nrepl#refactor#add_arity()
 command!          MoveToLet             call iced#let#move_to_let()
-command           ListTapped            call iced#nrepl#debug#list_tapped()
-command           ClearTapped           call iced#nrepl#debug#clear_tapped()
+
+command!          ListTapped            call iced#nrepl#debug#list_tapped()
+command!          ClearTapped           call iced#nrepl#debug#clear_tapped()
 command! -nargs=1 -complete=custom,iced#nrepl#debug#complete_tapped
-\ BrowseTapped                    call iced#nrepl#debug#browse_tapped(<q-args>)
+      \ BrowseTapped                    call iced#nrepl#debug#browse_tapped(<q-args>)
+command!
+      \ ToggleWarnOnReflection          call iced#nrepl#debug#toggle_warn_on_reflection()
+
 command! -nargs=? ToggleTraceVar        call iced#nrepl#trace#toggle_var(<q-args>)
 command! -nargs=? ToggleTraceNs         call iced#nrepl#trace#toggle_ns(<q-args>)
+
 command!          InReplNs              call iced#nrepl#ns#in_repl_session_ns()
+
 command!          LintCurrentFile       call iced#lint#current_file()
 command!          LintToggle            call iced#lint#toggle()
+
 command!          JumpToNextSign        call iced#sign#jump_to_next()
 command!          JumpToPrevSign        call iced#sign#jump_to_prev()
 command!          JumpToLet             call iced#let#jump_to_let()
-"" }}}
-
-""  mappings {{{
 
 "silent! nmap <buffer> <Leader>' <Plug>(iced_connect)
 
@@ -177,4 +197,3 @@ command!          JumpToLet             call iced#let#jump_to_let()
 "silent! nmap <buffer> == <Plug>(iced_format)
 "silent! nmap <buffer> <Leader>* <Plug>(iced_grep)
 "silent! nmap <buffer> <Leader>/ :<C-u>IcedGrep<Space>
-"" }}}
